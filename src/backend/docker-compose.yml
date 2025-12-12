@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database (for local development)
+  postgres:
+    image: postgres:15-alpine
+    container_name: letwash-db
+    environment:
+      POSTGRES_USER: letwash
+      POSTGRES_PASSWORD: letwash123
+      POSTGRES_DB: letwash
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U letwash"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: letwash-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DATABASE_URL: postgresql://letwash:letwash123@postgres:5432/letwash?schema=public
+      JWT_SECRET: your-super-secret-jwt-key-change-this
+      JWT_EXPIRES_IN: 7d
+      CORS_ORIGIN: http://localhost:5173
+    ports:
+      - "5000:5000"
+    command: sh -c "npx prisma migrate deploy && node src/index.js"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
