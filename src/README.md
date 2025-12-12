@@ -56,6 +56,13 @@ docker exec -it letwash-backend npm run seed
 **✅ Complete Docker Fix:** [DOCKER_COMPLETE_FIX.md](DOCKER_COMPLETE_FIX.md) - **13 eksik dosya eklendi!**  
 **🎉 Build artık çalışıyor!** - `docker-compose up --build` komutu sorunsuz çalışır
 
+**🚀 HIZLI BAŞLANGIÇ:**  
+**⚡ Docker Quick Start:** [DOCKER_QUICK_START.md](DOCKER_QUICK_START.md) - **3 dakikada başla!**  
+**🔐 New Auth Flow:** [NEW_AUTH_FLOW_GUIDE.md](NEW_AUTH_FLOW_GUIDE.md) - **SSO kaldırıldı, temiz auth!**
+
+**📋 SON GÜNCELLEMELER:**  
+**🎉 Latest Updates:** [LATEST_UPDATES_SUMMARY.md](LATEST_UPDATES_SUMMARY.md) - **v2.0 tüm değişiklikler!**
+
 ---
 
 ## 🌟 Key Features

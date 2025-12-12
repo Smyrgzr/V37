@@ -35,12 +35,10 @@
 
 import { useState } from "react";
 import { initialServiceRequests, initialStations } from "./data/mockData";
-import { LoginTypeSelector } from "./components/auth/LoginTypeSelector";
-import { CarwashLoginPage } from "./components/auth/CarwashLoginPage";
-import { ModernDemoLoginPage } from "./components/auth/ModernDemoLoginPage";
-import { RegistrationPage } from "./components/auth/RegistrationPage";
-import { RegistrationConfirmation } from "./components/auth/RegistrationConfirmation";
-import { SocialRegistrationComplete } from "./components/auth/SocialRegistrationComplete";
+import { SignInPage } from "./components/auth/SignInPage";
+import { SignUpPage } from "./components/auth/SignUpPage";
+import { AgreementsPage } from "./components/auth/AgreementsPage";
+import { BranchSetupPage } from "./components/auth/BranchSetupPage";
 import { SubscriptionSelection } from "./components/auth/SubscriptionSelection";
 import { BusinessModuleSelection, BusinessModule } from "./components/auth/BusinessModuleSelection";
 import { AdminLayout } from "./components/layout/AdminLayout";
@@ -130,10 +128,10 @@ interface User {
   provider?: string;
 }
 
-type AuthPage = "login-selector" | "root-owner-login" | "carwash-owner-login" | "modern-demo-login" | "register" | "business-modules" | "subscription-selection" | "confirmation" | "social-complete";
+type AuthPage = "signin" | "signup" | "business-modules" | "subscription-selection" | "agreements" | "branch-setup";
 
 export default function App() {
-  const [currentAuthPage, setCurrentAuthPage] = useState<AuthPage>("login-selector");
+  const [currentAuthPage, setCurrentAuthPage] = useState<AuthPage>("signin");
   const [currentPage, setCurrentPage] = useState("calendar");
   // 🎨 MODERN UX MODE - Login sonrası aktive edilecek!
   const [useModernUX, setUseModernUX] = useState(false);
@@ -2689,52 +2687,11 @@ export default function App() {
   ]);
 
   // Authentication handlers
-  const handleLogin = async (email: string, password: string, provider?: string) => {
+  const handleLogin = async (email: string, password: string) => {
     setAuthError("");
     
-    if (provider) {
-      // Handle social login
-      if (provider === "google") {
-        setUser({
-          id: "social_google_1",
-          name: "John Smith",
-          role: "carwash_owner",
-          email: "john.smith@gmail.com",
-          root_owner_id: "root1",
-          carwash_owner_id: "owner_google_1",
-          centerId: "google_center_1",
-          centerName: "Google Wash Center",
-          provider: "google",
-        });
-        toast.success("Successfully signed in with Google");
-      } else if (provider === "apple") {
-        setUser({
-          id: "social_apple_1",
-          name: "Jane Doe",
-          role: "carwash_owner",
-          email: "jane.doe@icloud.com",
-          root_owner_id: "root1",
-          carwash_owner_id: "owner_apple_1",
-          centerId: "apple_center_1",
-          centerName: "Apple Wash Center",
-          provider: "apple",
-        });
-        toast.success("Successfully signed in with Apple");
-      } else if (provider === "microsoft") {
-        setUser({
-          id: "social_microsoft_1",
-          name: "Mike Johnson",
-          role: "carwash_owner",
-          email: "mike.johnson@outlook.com",
-          root_owner_id: "root1",
-          carwash_owner_id: "owner_microsoft_1",
-          centerId: "microsoft_center_1",
-          centerName: "Microsoft Wash Center",
-          provider: "microsoft",
-        });
-        toast.success("Successfully signed in with Microsoft");
-      }
-    } else if (email === "root@letwash.com" && password === "root123") {
+    // Simple email/password authentication
+    if (email === "root@letwash.com" && password === "root123") {
       setUser({
         id: "root1",
         root_owner_id: "root1",
@@ -2755,7 +2712,7 @@ export default function App() {
         centerId: "center1",
         centerName: "AutoWash Pro",
       });
-      toast.success("Successfully logged in as Carwash Owner");
+      toast.success("Successfully logged in");
     } else if (email === "admin@branch.com" && password === "admin123") {
       setUser({
         id: "admin1",
@@ -2768,9 +2725,9 @@ export default function App() {
         centerName: "AutoWash Pro",
         assignedBranches: ["b1", "b2"],
       });
-      toast.success("Successfully logged in as Branch Admin");
+      toast.success("Successfully logged in");
     } else {
-      setAuthError("Invalid credentials. Please try again.");
+      setAuthError("Invalid email or password. Please try again.");
     }
   };
 
@@ -2818,13 +2775,7 @@ export default function App() {
   const handleRegister = async (data: any) => {
     setPendingRegistrationData(data);
     setRegistrationEmail(data.email);
-    setSocialProviderUsed(null);
     setCurrentAuthPage("business-modules");
-  };
-
-  const handleSocialRegister = async (provider: string, basicInfo: any) => {
-    setSocialUserInfo(basicInfo);
-    setCurrentAuthPage("social-complete");
   };
 
   const handleBusinessModulesSelected = (modules: BusinessModule[]) => {
@@ -2832,19 +2783,12 @@ export default function App() {
     setCurrentAuthPage("subscription-selection");
   };
 
-  const handleSocialRegistrationComplete = async (completionData: any) => {
-    const combinedData = {
-      ...completionData,
-      contactPerson: socialUserInfo.name,
-      email: socialUserInfo.email,
-    };
-    setPendingRegistrationData(combinedData);
-    setRegistrationEmail(socialUserInfo.email);
-    setSocialProviderUsed(socialUserInfo.provider);
-    setCurrentAuthPage("business-modules");
+  const handleSubscriptionComplete = (subscription: { tierId: string; billingCycle: "monthly" | "yearly" } | null) => {
+    setSelectedSubscription(subscription);
+    setCurrentAuthPage("agreements");
   };
 
-  const handleSubscriptionComplete = (subscription: { tierId: string; billingCycle: "monthly" | "yearly" } | null) => {
+  const handleAgreementsAccepted = () => {
     const newCenter = {
       id: String(mockCarwashCenters.length + 1),
       root_owner_id: "root1",
@@ -2857,26 +2801,34 @@ export default function App() {
       city: pendingRegistrationData.city,
       district: pendingRegistrationData.district,
       branchCount: 0,
-      accountType: subscription?.tierId === "starter" ? "standard" : subscription?.tierId === "enterprise" ? "premium" : "standard",
+      accountType: selectedSubscription?.tierId === "starter" ? "standard" : selectedSubscription?.tierId === "enterprise" ? "premium" : "standard",
       companySize: "small" as const,
       carTypes: [],
       serviceTypes: [],
       branches: [],
-      status: "pending" as const,
+      status: "active" as const,
       registrationDate: new Date().toISOString().split('T')[0],
-      subscription: subscription || undefined,
-      businessModules: selectedBusinessModules, // Business modules
+      subscription: selectedSubscription || undefined,
+      businessModules: selectedBusinessModules,
     };
     
     setMockCarwashCenters(prev => [...prev, newCenter]);
-    setSelectedSubscription(subscription);
-    setCurrentAuthPage("confirmation");
     
-    if (subscription) {
-      toast.success(`Registration completed with ${subscription.tierId} plan!`);
-    } else {
-      toast.success("Registration submitted successfully!");
-    }
+    // Auto-login the new user
+    setUser({
+      id: newCenter.carwash_owner_id,
+      root_owner_id: "root1",
+      carwash_owner_id: newCenter.carwash_owner_id,
+      name: pendingRegistrationData.contactPerson,
+      role: "carwash_owner",
+      email: pendingRegistrationData.email,
+      centerId: newCenter.id,
+      centerName: newCenter.name,
+    });
+    
+    // Go to branch setup
+    setCurrentAuthPage("branch-setup");
+    toast.success("Welcome! Let's set up your first branch.");
   };
 
   // Branch management handlers
@@ -3083,122 +3035,40 @@ export default function App() {
   // Auth flow
   if (!user) {
     switch (currentAuthPage) {
-      case "login-selector":
+      case "signin":
         return (
           <>
-            <LoginTypeSelector
-              onSelectType={(type) => {
-                if (type === "modern-demo") {
-                  // 🚀 MODERN UX DEMO MODE - Show login page with SSO
-                  setCurrentAuthPage("modern-demo-login");
-                } else if (type === "root-owner") {
-                  setCurrentAuthPage("root-owner-login");
-                } else if (type === "carwash-owner") {
-                  setCurrentAuthPage("carwash-owner-login");
-                }
-              }}
-            />
-            <Toaster />
-          </>
-        );
-
-      case "root-owner-login":
-        return (
-          <>
-            <CarwashLoginPage
-              onLogin={handleLogin}
-              onNavigateToRegister={undefined} // ROOT OWNER cannot register through this flow
-              onBack={() => setCurrentAuthPage("login-selector")}
+            <SignInPage
+              onSignIn={handleLogin}
+              onNavigateToSignUp={() => setCurrentAuthPage("signup")}
               error={authError}
-              title="ROOT OWNER Login"
-              subtitle="Platform-level administrator access"
             />
             <Toaster />
           </>
         );
 
-      case "modern-demo-login":
+      case "signup":
         return (
           <>
-            <ModernDemoLoginPage
-              onQuickDemo={() => {
-                // Quick demo access without SSO
-                setUseModernUX(true);
-                setUser({
-                  id: "owner1",
-                  name: "Demo User",
-                  role: "carwash_owner",
-                  email: "demo@autowash.com",
-                  root_owner_id: "root1",
-                  carwash_owner_id: "owner1",
-                  centerId: "1",
-                  centerName: "AutoWash Pro Demo",
-                });
-                toast.success("🚀 Modern UX Demo Activated!");
-              }}
-              onSSOLogin={(email, password, provider) => {
-                setUseModernUX(true);
-                handleLogin(email, password, provider);
-              }}
-              onBack={() => setCurrentAuthPage("login-selector")}
+            <SignUpPage
+              onSignUp={handleRegister}
+              onNavigateToSignIn={() => setCurrentAuthPage("signin")}
             />
             <Toaster />
           </>
         );
-
-      case "carwash-owner-login":
-        return (
-          <>
-            <CarwashLoginPage
-              onLogin={handleLogin}
-              onNavigateToRegister={() => setCurrentAuthPage("register")}
-              onBack={() => setCurrentAuthPage("login-selector")}
-              error={authError}
-              title="Carwash Owner Login"
-              subtitle="Sign in to manage your carwash business"
-              enableSSO={true}
-            />
-            <Toaster />
-          </>
-        );
-      case "register":
-        return (
-          <>
-            <RegistrationPage
-              onRegister={handleRegister}
-              onSocialRegister={handleSocialRegister}
-              onBack={() => setCurrentAuthPage("carwash-owner-login")}
-            />
-            <Toaster />
-          </>
-        );
-      case "social-complete":
-        return (
-          <>
-            <SocialRegistrationComplete
-              socialUserInfo={socialUserInfo}
-              onComplete={handleSocialRegistrationComplete}
-              onBack={() => setCurrentAuthPage("register")}
-            />
-            <Toaster />
-          </>
-        );
+        
       case "business-modules":
         return (
           <>
             <BusinessModuleSelection
               onComplete={handleBusinessModulesSelected}
-              onBack={() => {
-                if (socialProviderUsed) {
-                  setCurrentAuthPage("social-complete");
-                } else {
-                  setCurrentAuthPage("register");
-                }
-              }}
+              onBack={() => setCurrentAuthPage("signup")}
             />
             <Toaster />
           </>
         );
+        
       case "subscription-selection":
         return (
           <>
@@ -3209,19 +3079,45 @@ export default function App() {
             <Toaster />
           </>
         );
-      case "confirmation":
+        
+      case "agreements":
         return (
           <>
-            <RegistrationConfirmation
-              onBackToLogin={() => setCurrentAuthPage("carwash-owner-login")}
-              email={registrationEmail}
-              socialProvider={socialProviderUsed || undefined}
-              subscription={selectedSubscription}
+            <AgreementsPage
+              onAccept={handleAgreementsAccepted}
+              onBack={() => setCurrentAuthPage("subscription-selection")}
             />
             <Toaster />
           </>
         );
 
+      case "branch-setup":
+        if (user) {
+          return (
+            <>
+              <BranchSetupPage
+                user={{
+                  name: user.name,
+                  centerName: user.centerName || "Your Business",
+                }}
+                onComplete={(branchData) => {
+                  // Add branch
+                  handleAddBranch(branchData);
+                  // Navigate to dashboard
+                  setCurrentAuthPage("signin"); // Reset auth page
+                  toast.success("🎉 Branch created! Welcome to your dashboard!");
+                }}
+                onSkip={() => {
+                  // Skip branch setup, go to dashboard
+                  setCurrentAuthPage("signin"); // Reset auth page
+                  toast.success("Welcome! You can add branches later from settings.");
+                }}
+              />
+              <Toaster />
+            </>
+          );
+        }
+        break;
     }
   }
 
