@@ -63,6 +63,10 @@ docker exec -it letwash-backend npm run seed
 **📋 SON GÜNCELLEMELER:**  
 **🎉 Latest Updates:** [LATEST_UPDATES_SUMMARY.md](LATEST_UPDATES_SUMMARY.md) - **v2.0 tüm değişiklikler!**
 
+**🍎 MACOS KURULUM:**  
+**📱 macOS Guide:** [MACOS_DOCKER_KURULUM.md](MACOS_DOCKER_KURULUM.md) - **macOS'ta adım adım Docker kurulumu!**  
+**⚡ Quick Start Script:** `bash quick-start.sh` - **Tek komutla başla!**
+
 ---
 
 ## 🌟 Key Features
