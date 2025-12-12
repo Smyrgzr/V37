@@ -71,23 +71,23 @@ cd C:\Users\KULLANICI_ADIN\Desktop\V37
 
 ### **3. Environment Variables (Hızlı)**
 
-#### **Backend .env**
+✅ **`.env` dosyaları zaten hazır!** Kopyalamana gerek yok.
+
+**Dosyalar mevcut:**
+- ✅ `backend/.env` → Backend config (hazır!)
+- ✅ `.env` → Frontend config (hazır!)
+
+**Eğer eksikse (nadiren):**
 
 ```bash
-cd backend
-cp .env.example .env
-cd ..
-```
+# Backend .env (sadece eksikse)
+cp backend/.env.example backend/.env
 
-**Varsayılan değerler yeterli!** Değiştirmene gerek yok.
-
-#### **Frontend .env**
-
-```bash
+# Frontend .env (sadece eksikse)
 cp .env.example .env
 ```
 
-**Varsayılan değerler yeterli!**
+**📖 Detaylı bilgi:** [ENV_SETUP_GUIDE.md](ENV_SETUP_GUIDE.md)
 
 ---
 

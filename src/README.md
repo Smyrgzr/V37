@@ -17,9 +17,9 @@
 git clone <repo_url>
 cd V37
 
-# 2. Setup environment
-cp backend/.env.example backend/.env
-cp .env.example .env
+# 2. Setup environment (ALREADY DONE! ✅)
+# .env files are pre-configured with development values
+# No need to copy - they're ready to use!
 
 # 3. Start Docker
 docker-compose up --build
@@ -34,7 +34,13 @@ docker exec -it letwash-backend npm run seed
 ```
 
 **📖 Detailed Guide:** [QUICK_START.md](QUICK_START.md)  
-**🐳 Docker Setup:** [DOCKER_SETUP_COMPLETE.md](DOCKER_SETUP_COMPLETE.md)
+**🐳 Docker Setup:** [DOCKER_SETUP_COMPLETE.md](DOCKER_SETUP_COMPLETE.md)  
+**🔐 Environment Variables:** [ENV_SETUP_GUIDE.md](ENV_SETUP_GUIDE.md)
+
+**🆕 NEW:**  
+**📊 System Analysis:** [SYSTEM_ANALYSIS_COMPLETE.md](SYSTEM_ANALYSIS_COMPLETE.md)  
+**📝 Files Summary:** [FILES_CREATED_SUMMARY.md](FILES_CREATED_SUMMARY.md)  
+**📄 Completion Report:** [ANALYSIS_COMPLETION_REPORT.md](ANALYSIS_COMPLETION_REPORT.md)
 
 ---
 
@@ -437,35 +443,46 @@ docker-compose restart
 | [STRIPE_SETUP_GUIDE.md](STRIPE_SETUP_GUIDE.md) | Payment integration setup |
 | [STRIPE_INTEGRATION_COMPLETE.md](STRIPE_INTEGRATION_COMPLETE.md) | Stripe features overview |
 | [SSO_DEMO_COMPLETE.md](SSO_DEMO_COMPLETE.md) | SSO + Demo mode features |
+| [ENV_SETUP_GUIDE.md](ENV_SETUP_GUIDE.md) | Environment variables guide |
+| [ENV_FILES_CREATED.md](ENV_FILES_CREATED.md) | .env files reference |
+| [INSTALLATION_CHECKLIST.md](INSTALLATION_CHECKLIST.md) | Step-by-step checklist |
+| [DOKUMANTASYON_OZET.md](DOKUMANTASYON_OZET.md) | Documentation overview (TR) |
+| [START_HERE.md](START_HERE.md) | New user quick guide |
+| [COMPLETE_SYSTEM_DOCUMENTATION.md](COMPLETE_SYSTEM_DOCUMENTATION.md) | **Complete technical docs** |
+| [PRODUCTION_DEPLOYMENT_GUIDE.md](PRODUCTION_DEPLOYMENT_GUIDE.md) | **Production deployment** |
 
 ---
 
-## 🌐 Environment Variables
+## 📁 Project Structure
 
-### **Backend (.env)**
-```env
-# Database
-DATABASE_URL=postgresql://letwash:letwash123@localhost:5432/letwash
-
-# JWT
-JWT_SECRET=your-secret-key
-JWT_EXPIRES_IN=7d
-
-# Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-
-# CORS
-CORS_ORIGIN=http://localhost:5173,http://localhost:80
 ```
-
-### **Frontend (.env)**
-```env
-# API
-VITE_API_BASE_URL=http://localhost:5000/api/v1
-
-# Stripe
-VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
+V37/
+├── backend/                    # Node.js Backend API
+│   ├── src/
+│   │   ├── controllers/       # Business logic
+│   │   │   ├── stripe.controller.js      # Payment processing
+│   │   │   ├── commission.controller.js  # Commission management
+│   │   │   ├── transaction.controller.js # Transaction tracking
+│   │   │   └── ...
+│   │   ├── routes/            # API routes
+│   │   ├── middleware/        # Auth, validation, error handling
+│   │   └── index.js           # Server entry point
+│   ├── prisma/
+│   │   ├── schema.prisma      # Database schema
+│   │   └── seed.js            # Demo data
+│   └── .env                   # Environment variables
+├── components/                 # React Components
+│   ├── auth/                  # Login, Register, Demo Mode
+│   ├── payment/               # Stripe Checkout, Payment Success
+│   ├── dialogs/               # Payment Dialog, Agreement Dialog
+│   ├── dashboard/             # Analytics, KPIs
+���   └── ...
+├── docker-compose.yml          # Docker setup
+├── QUICK_START.md             # 5-minute quick start
+├── DOCKER_SETUP_COMPLETE.md   # Detailed Docker guide
+├── DEMO_MODE_GUIDE.md         # Demo users guide
+├── STRIPE_SETUP_GUIDE.md      # Payment setup
+└── README.md                  # This file
 ```
 
 ---
