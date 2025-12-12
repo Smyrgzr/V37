@@ -41,6 +41,10 @@ services:
       SESSION_SECRET: local-dev-session-secret-change-in-production
       CORS_ORIGIN: http://localhost:5173,http://localhost:3000,http://localhost:80
       FRONTEND_URL: http://localhost:80
+      # Stripe (test keys - replace with your own)
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_YOUR_KEY_HERE}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-pk_test_YOUR_KEY_HERE}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_YOUR_SECRET_HERE}
     ports:
       - "5000:5000"
     networks:

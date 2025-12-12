@@ -38,7 +38,8 @@
     "passport-microsoft": "^1.0.0",
     "amazon-cognito-identity-js": "^6.3.7",
     "axios": "^1.6.2",
-    "express-session": "^1.17.3"
+    "express-session": "^1.17.3",
+    "stripe": "^14.9.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2",

@@ -20,6 +20,10 @@ const campaignRoutes = require('./routes/campaign.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const subscriptionRoutes = require('./routes/subscription.routes');
+const agreementRoutes = require('./routes/agreement.routes');
+const transactionRoutes = require('./routes/transaction.routes');
+const commissionRoutes = require('./routes/commission.routes');
+const stripeRoutes = require('./routes/stripe.routes');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
@@ -110,6 +114,10 @@ app.use(`/api/${API_VERSION}/campaigns`, campaignRoutes);
 app.use(`/api/${API_VERSION}/analytics`, analyticsRoutes);
 app.use(`/api/${API_VERSION}/notifications`, notificationRoutes);
 app.use(`/api/${API_VERSION}/subscriptions`, subscriptionRoutes);
+app.use(`/api/${API_VERSION}/agreements`, agreementRoutes);
+app.use(`/api/${API_VERSION}/transactions`, transactionRoutes);
+app.use(`/api/${API_VERSION}/commissions`, commissionRoutes);
+app.use(`/api/${API_VERSION}/stripe`, stripeRoutes);
 
 // Welcome route
 app.get('/', (req, res) => {

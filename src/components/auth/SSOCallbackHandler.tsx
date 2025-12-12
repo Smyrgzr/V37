@@ -1,22 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { AgreementSignatureDialog } from './AgreementSignatureDialog';
 
 interface SSOCallbackHandlerProps {
   onSuccess?: (token: string, refreshToken: string) => void;
   onError?: (error: string) => void;
   redirectTo?: string;
+  apiUrl?: string;
 }
 
 export function SSOCallbackHandler({ 
   onSuccess, 
   onError,
-  redirectTo = '/dashboard' 
+  redirectTo = '/dashboard',
+  apiUrl = 'http://localhost:5000/api/v1'
 }: SSOCallbackHandlerProps) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'agreements'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
+  const [userId, setUserId] = useState<string | null>(null);
+  const [showAgreements, setShowAgreements] = useState(false);
 
   useEffect(() => {
     const token = searchParams.get('token');
@@ -43,13 +48,17 @@ export function SSOCallbackHandler({
       localStorage.setItem('accessToken', token);
       localStorage.setItem('refreshToken', refreshToken);
 
-      setStatus('success');
-      onSuccess?.(token, refreshToken);
-
-      // Redirect to dashboard after a short delay
-      setTimeout(() => {
-        navigate(redirectTo);
-      }, 1500);
+      // Decode token to get userId (basic JWT decode)
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setUserId(payload.userId || payload.sub);
+        
+        // Check if agreements need to be signed
+        checkAgreements(payload.userId || payload.sub, token);
+      } catch (err) {
+        console.error('Failed to decode token:', err);
+        proceedToDashboard(token, refreshToken);
+      }
     } else {
       setStatus('error');
       setErrorMessage('Missing authentication tokens');
@@ -61,14 +70,71 @@ export function SSOCallbackHandler({
     }
   }, [searchParams, navigate, onSuccess, onError, redirectTo]);
 
+  const checkAgreements = async (userId: string, token: string) => {
+    try {
+      const response = await fetch(`${apiUrl}/users/${userId}/agreements`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch agreements');
+      }
+
+      const agreements = await response.json();
+      if (agreements && agreements.length > 0) {
+        setShowAgreements(true);
+        setStatus('agreements');
+      } else {
+        proceedToDashboard(token, refreshToken);
+      }
+    } catch (err) {
+      console.error('Error checking agreements:', err);
+      proceedToDashboard(token, refreshToken);
+    }
+  };
+
+  const proceedToDashboard = (token: string, refreshToken: string) => {
+    setStatus('success');
+    onSuccess?.(token, refreshToken);
+
+    // Redirect to dashboard after a short delay
+    setTimeout(() => {
+      navigate(redirectTo);
+    }, 1500);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      {userId && (
+        <AgreementSignatureDialog
+          userId={userId}
+          open={showAgreements}
+          onOpenChange={setShowAgreements}
+          onComplete={() => {
+            const token = localStorage.getItem('accessToken') || '';
+            const refreshToken = localStorage.getItem('refreshToken') || '';
+            proceedToDashboard(token, refreshToken);
+          }}
+          apiUrl={apiUrl}
+        />
+      )}
+
       <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full text-center">
         {status === 'loading' && (
           <>
             <Loader2 className="h-16 w-16 animate-spin text-blue-600 mx-auto mb-4" />
             <h2 className="text-2xl font-semibold mb-2">Authenticating...</h2>
             <p className="text-gray-600">Please wait while we complete your sign in</p>
+          </>
+        )}
+
+        {status === 'agreements' && (
+          <>
+            <Loader2 className="h-16 w-16 animate-spin text-blue-600 mx-auto mb-4" />
+            <h2 className="text-2xl font-semibold mb-2">Checking Agreements...</h2>
+            <p className="text-gray-600">Please sign the required agreements to continue</p>
           </>
         )}
 

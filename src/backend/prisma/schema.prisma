@@ -46,6 +46,10 @@ model User {
   activityLogs  ActivityLog[]
   subscriptions Subscription[]
   businessModules BusinessModule[]
+  signedAgreements UserAgreement[]
+  transactions Transaction[]
+  commissionsReceived Commission[] @relation("OwnerCommissions")
+  payoutBatches PayoutBatch[] @relation("OwnerPayouts")
 
   @@map("users")
 }
@@ -506,4 +510,222 @@ model BusinessModule {
 
   @@index([userId, moduleName])
   @@map("business_modules")
+}
+
+// ============================================
+// AGREEMENTS & CONTRACTS
+// ============================================
+
+enum AgreementType {
+  TERMS_OF_SERVICE
+  PRIVACY_POLICY
+  TRANSACTION_AGREEMENT
+  CARWASH_OWNER_AGREEMENT
+  SERVICE_LEVEL_AGREEMENT
+}
+
+enum AgreementStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+model Agreement {
+  id          String          @id @default(uuid())
+  type        AgreementType
+  version     String          // e.g., "1.0", "2.1"
+  title       String
+  content     String          @db.Text
+  status      AgreementStatus @default(DRAFT)
+  effectiveDate DateTime      @map("effective_date")
+  expiryDate    DateTime?     @map("expiry_date")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  // Relations
+  userSignatures UserAgreement[]
+
+  @@unique([type, version])
+  @@index([type, status, effectiveDate])
+  @@map("agreements")
+}
+
+model UserAgreement {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  agreementId  String   @map("agreement_id")
+  signedAt     DateTime @default(now()) @map("signed_at")
+  ipAddress    String   @map("ip_address")
+  userAgent    String   @map("user_agent")
+  signatureData Json?   @map("signature_data") // Digital signature metadata
+
+  // Relations
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agreement Agreement @relation(fields: [agreementId], references: [id])
+
+  @@unique([userId, agreementId])
+  @@index([userId])
+  @@map("user_agreements")
+}
+
+// ============================================
+// PAYMENT & TRANSACTIONS
+// ============================================
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  CASH
+  BANK_TRANSFER
+  DIGITAL_WALLET
+  APPLE_PAY
+  GOOGLE_PAY
+}
+
+enum TransactionType {
+  BOOKING_PAYMENT
+  SUBSCRIPTION_PAYMENT
+  REFUND
+  COMMISSION_SETTLEMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  DISPUTED
+}
+
+model Transaction {
+  id                  String            @id @default(uuid())
+  bookingId           String?           @map("booking_id")
+  subscriptionId      String?           @map("subscription_id")
+  userId              String            @map("user_id")
+  type                TransactionType
+  status              TransactionStatus @default(PENDING)
+  
+  // Payment Details
+  amount              Decimal           @db.Decimal(10, 2)
+  currency            String            @default("TRY")
+  paymentMethod       PaymentMethod     @map("payment_method")
+  
+  // Commission Calculation
+  grossAmount         Decimal           @map("gross_amount") @db.Decimal(10, 2)
+  commissionRate      Decimal           @map("commission_rate") @db.Decimal(5, 2) // percentage
+  commissionAmount    Decimal           @map("commission_amount") @db.Decimal(10, 2)
+  netAmount           Decimal           @map("net_amount") @db.Decimal(10, 2) // amount to carwash owner
+  
+  // Payment Gateway Info
+  paymentGateway      String?           @map("payment_gateway") // stripe, paypal, iyzico
+  gatewayTransactionId String?          @unique @map("gateway_transaction_id")
+  gatewayResponse     Json?             @map("gateway_response")
+  
+  // Additional Info
+  description         String?
+  metadata            Json?
+  failureReason       String?           @map("failure_reason")
+  refundedAmount      Decimal?          @default(0) @db.Decimal(10, 2) @map("refunded_amount")
+  
+  // Timestamps
+  processedAt         DateTime?         @map("processed_at")
+  settledAt           DateTime?         @map("settled_at")
+  createdAt           DateTime          @default(now()) @map("created_at")
+  updatedAt           DateTime          @updatedAt @map("updated_at")
+
+  // Relations
+  user         User          @relation(fields: [userId], references: [id])
+  commissions  Commission[]
+
+  @@index([userId, status, createdAt])
+  @@index([bookingId])
+  @@index([subscriptionId])
+  @@index([gatewayTransactionId])
+  @@map("transactions")
+}
+
+// ============================================
+// COMMISSION TRACKING
+// ============================================
+
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+  DISPUTED
+}
+
+model Commission {
+  id                String           @id @default(uuid())
+  transactionId     String           @map("transaction_id")
+  carwashOwnerId    String           @map("carwash_owner_id")
+  branchId          String?          @map("branch_id")
+  
+  // Commission Calculation
+  transactionAmount Decimal          @map("transaction_amount") @db.Decimal(10, 2)
+  commissionRate    Decimal          @map("commission_rate") @db.Decimal(5, 2)
+  commissionAmount  Decimal          @map("commission_amount") @db.Decimal(10, 2)
+  
+  // Status
+  status            CommissionStatus @default(PENDING)
+  
+  // Payout Info
+  payoutBatchId     String?          @map("payout_batch_id")
+  paidAt            DateTime?        @map("paid_at")
+  paymentReference  String?          @map("payment_reference")
+  
+  // Metadata
+  notes             String?
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+
+  // Relations
+  transaction    Transaction @relation(fields: [transactionId], references: [id])
+  carwashOwner   User        @relation("OwnerCommissions", fields: [carwashOwnerId], references: [id])
+
+  @@index([carwashOwnerId, status])
+  @@index([transactionId])
+  @@index([payoutBatchId])
+  @@map("commissions")
+}
+
+// ============================================
+// PAYOUT BATCHES
+// ============================================
+
+enum PayoutStatus {
+  SCHEDULED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model PayoutBatch {
+  id                String       @id @default(uuid())
+  ownerId           String       @map("owner_id")
+  totalAmount       Decimal      @map("total_amount") @db.Decimal(10, 2)
+  commissionCount   Int          @map("commission_count")
+  status            PayoutStatus @default(SCHEDULED)
+  
+  // Bank Details
+  bankAccountName   String?      @map("bank_account_name")
+  bankAccountNumber String?      @map("bank_account_number")
+  bankName          String?      @map("bank_name")
+  
+  // Processing Info
+  scheduledDate     DateTime     @map("scheduled_date")
+  processedAt       DateTime?    @map("processed_at")
+  completedAt       DateTime?    @map("completed_at")
+  failureReason     String?      @map("failure_reason")
+  
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  owner User @relation("OwnerPayouts", fields: [ownerId], references: [id])
+
+  @@index([ownerId, status])
+  @@index([scheduledDate])
+  @@map("payout_batches")
 }

@@ -23,6 +23,11 @@ async function main() {
   await prisma.notification.deleteMany();
   await prisma.activityLog.deleteMany();
   await prisma.analytics.deleteMany();
+  await prisma.commission.deleteMany();
+  await prisma.transaction.deleteMany();
+  await prisma.payoutBatch.deleteMany();
+  await prisma.userAgreement.deleteMany();
+  await prisma.agreement.deleteMany();
   await prisma.user.deleteMany();
   console.log('✅ Cleaned!\n');
 
@@ -452,6 +457,154 @@ async function main() {
   console.log('  ✓ 2 notifications created\n');
 
   // ============================================
+  // CREATE AGREEMENTS
+  // ============================================
+  console.log('📄 Creating agreements...');
+
+  const tosAgreement = await prisma.agreement.create({
+    data: {
+      type: 'TERMS_OF_SERVICE',
+      version: '1.0',
+      title: 'Letwash Kullanım Koşulları',
+      content: `
+        <div class="agreement-content">
+          <h1>Letwash Platformu Kullanım Koşulları</h1>
+          <p><strong>Yürürlük Tarihi:</strong> ${new Date().toLocaleDateString('tr-TR')}</p>
+          
+          <h2>1. Kapsam</h2>
+          <p>Bu sözleşme, Letwash platformunu kullanan tüm carwash işletmeleri ve kullanıcılar için geçerlidir.</p>
+          
+          <h2>2. Hizmet Tanımı</h2>
+          <p>Letwash, araç yıkama işletmelerinin rezervasyon, müşteri yönetimi ve operasyonel süreçlerini dijitalleştiren bir SaaS platformudur.</p>
+          
+          <h2>3. Kullanıcı Sorumlulukları</h2>
+          <ul>
+            <li>Doğru ve güncel bilgi sağlamak</li>
+            <li>Hesap güvenliğini korumak</li>
+            <li>Platform kurallarına uymak</li>
+            <li>Müşteri verilerini KVKK kapsamında korumak</li>
+          </ul>
+          
+          <h2>4. Platform Kullanım Hakları</h2>
+          <p>Letwash size bu platformu kullanma hakkı verir ancak platform üzerindeki tüm haklar Letwash'a aittir.</p>
+          
+          <h2>5. Ücretlendirme</h2>
+          <p>Platform kullanımı için subscription planları ve işlem komisyonları uygulanır.</p>
+          
+          <h2>6. Fesih</h2>
+          <p>Her iki taraf da bildirimsiz olarak hizmet sözleşmesini feshedebilir.</p>
+        </div>
+      `,
+      status: 'ACTIVE',
+      effectiveDate: new Date()
+    }
+  });
+
+  const privacyAgreement = await prisma.agreement.create({
+    data: {
+      type: 'PRIVACY_POLICY',
+      version: '1.0',
+      title: 'Gizlilik Politikası',
+      content: `
+        <div class="agreement-content">
+          <h1>Letwash Gizlilik Politikası</h1>
+          <p><strong>Yürürlük Tarihi:</strong> ${new Date().toLocaleDateString('tr-TR')}</p>
+          
+          <h2>1. Toplanan Veriler</h2>
+          <p>Letwash platformunda aşağıdaki veriler toplanmaktadır:</p>
+          <ul>
+            <li>Kullanıcı hesap bilgileri (ad, email, telefon)</li>
+            <li>İşletme bilgileri (adres, vergi numarası)</li>
+            <li>Müşteri bilgileri (ad, telefon, araç bilgileri)</li>
+            <li>İşlem verileri (rezervasyonlar, ödemeler)</li>
+            <li>Kullanım verileri (log kayıtları, IP adresleri)</li>
+          </ul>
+          
+          <h2>2. Veri Kullanımı</h2>
+          <p>Toplanan veriler şu amaçlarla kullanılır:</p>
+          <ul>
+            <li>Hizmet sunumu ve iyileştirme</li>
+            <li>Müşteri desteği</li>
+            <li>Fatura ve ödeme işlemleri</li>
+            <li>Yasal yükümlülüklerin yerine getirilmesi</li>
+          </ul>
+          
+          <h2>3. Veri Güvenliği</h2>
+          <p>Verileriniz SSL sertifikası, şifrelemeve güvenli sunucularda saklanır.</p>
+          
+          <h2>4. KVKK Hakları</h2>
+          <p>Kullanıcılar KVKK kapsamında verilerine erişme, düzeltme ve silme hakkına sahiptir.</p>
+          
+          <h2>5. İletişim</h2>
+          <p>Gizlilik sorularınız için: privacy@letwash.com</p>
+        </div>
+      `,
+      status: 'ACTIVE',
+      effectiveDate: new Date()
+    }
+  });
+
+  const transactionAgreement = await prisma.agreement.create({
+    data: {
+      type: 'TRANSACTION_AGREEMENT',
+      version: '1.0',
+      title: 'İşlem Sözleşmesi ve Komisyon Koşulları',
+      content: `
+        <div class="agreement-content">
+          <h1>Letwash İşlem Sözleşmesi</h1>
+          <p><strong>Yürürlük Tarihi:</strong> ${new Date().toLocaleDateString('tr-TR')}</p>
+          
+          <h2>1. Komisyon Oranları</h2>
+          <p>Letwash platformu üzerinden gerçekleşen tüm işlemlerden aşağıdaki komisyon oranları uygulanır:</p>
+          <table border="1" cellpadding="10">
+            <tr>
+              <th>Subscription Tier</th>
+              <th>Komisyon Oranı</th>
+            </tr>
+            <tr>
+              <td>Starter</td>
+              <td><strong>15%</strong></td>
+            </tr>
+            <tr>
+              <td>Professional</td>
+              <td><strong>10%</strong></td>
+            </tr>
+            <tr>
+              <td>Enterprise</td>
+              <td><strong>7.5%</strong></td>
+            </tr>
+          </table>
+          
+          <h2>2. Ödeme Akışı</h2>
+          <p>Müşteri ödemesi → Letwash Payment Gateway → Komisyon Kesintisi → Carwash Owner Hesabı</p>
+          
+          <h2>3. Ödeme Zamanlaması</h2>
+          <ul>
+            <li>Komisyonlar her işlemde otomatik hesaplanır</li>
+            <li>Net tutarlar 7 gün içinde işletme hesabınıza aktarılır</li>
+            <li>Aylık payout batch'ler ile toplu ödemeler yapılır</li>
+          </ul>
+          
+          <h2>4. İptal ve İade</h2>
+          <p>İptal edilen işlemlerde komisyon iadesi yapılır. İade süreci 14 gün sürebilir.</p>
+          
+          <h2>5. Raporlama</h2>
+          <p>Tüm transaction ve komisyon detayları dashboard'unuzda görüntülenebilir.</p>
+          
+          <h2>6. Vergi Sorumlulukları</h2>
+          <p>İşletmeler, gelirlerini beyan etmek ve gerekli vergileri ödemekle yükümlüdür.</p>
+        </div>
+      `,
+      status: 'ACTIVE',
+      effectiveDate: new Date()
+    }
+  });
+
+  console.log('  ✓ Terms of Service (v1.0)');
+  console.log('  ✓ Privacy Policy (v1.0)');
+  console.log('  ✓ Transaction Agreement (v1.0)\n');
+
+  // ============================================
   // SUMMARY
   // ============================================
   console.log('✅ Database seeding completed!\n');
@@ -464,6 +617,7 @@ async function main() {
   console.log('   - 3 Customers');
   console.log('   - 2 Campaigns');
   console.log('   - 2 Notifications');
+  console.log('   - 3 Agreements (ToS, Privacy, Transaction)');
   console.log('\n🔐 Test Credentials:');
   console.log('   Root Owner:    admin@letwash.com / Letwash123!');
   console.log('   Owner 1:       owner1@letwash.com / Letwash123!');

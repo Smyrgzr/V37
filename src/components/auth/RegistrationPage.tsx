@@ -10,6 +10,7 @@ import { Separator } from "../ui/separator";
 import { Checkbox } from "../ui/checkbox";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Textarea } from "../ui/textarea";
+import { DemoCredentials } from "./DemoCredentials";
 
 interface RegistrationData {
   centerName: string;
