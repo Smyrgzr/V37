@@ -90,8 +90,8 @@ docker --version  # Latest
 
 ### 1️⃣ Clone Repository
 ```bash
-git clone https://github.com/Smyrgzr/LWT.git
-cd LWT
+git clone https://github.com/Smyrgzr/V37.git
+cd V37
 ```
 
 ### 2️⃣ Install Dependencies
