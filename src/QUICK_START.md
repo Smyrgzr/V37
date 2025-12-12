@@ -94,17 +94,26 @@ cp .env.example .env
 ### **4. Docker Başlat**
 
 ```bash
+# Start all services (backend, frontend, database)
 docker-compose up --build
+
+# Or run in background (detached mode):
+docker-compose up --build -d
 ```
 
-**İlk çalıştırma 5-10 dakika sürer.** ☕
+**⏱️ Wait time:** ~2-3 minutes for first build
 
-**Başarılı olunca göreceksin:**
+**Expected output:**
+```
+✔ Container letwash-db        Healthy
+✔ Container letwash-backend   Started  
+✔ Container letwash-frontend  Started
+```
 
-```
-✅ letwash-backend  | Server is running on port 5000
-✅ letwash-frontend | Local: http://localhost:5173
-```
+**❓ Troubleshooting:**
+- Port 80 in use? Change to `8080:80` in docker-compose.yml
+- Port 5000 in use? Stop other Node apps
+- See [DOCKER_FIX_GUIDE.md](DOCKER_FIX_GUIDE.md) for solutions
 
 ---
 
