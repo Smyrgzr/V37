@@ -3,9 +3,38 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-blue)](https://www.postgresql.org/)
-[![AWS](https://img.shields.io/badge/AWS-Ready-orange)](https://aws.amazon.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue)](https://www.docker.com/)
+[![Stripe](https://img.shields.io/badge/Stripe-Integrated-blueviolet)](https://stripe.com/)
 
-> **Production-ready SaaS platform** for multi-location car wash businesses with subscription management, SSO authentication, real-time operations, and comprehensive analytics.
+> **Production-ready SaaS platform** for multi-location car wash businesses with subscription management, SSO authentication, real-time operations, payment processing, and comprehensive analytics.
+
+---
+
+## ⚡ Quick Start (5 Minutes)
+
+```bash
+# 1. Clone project
+git clone <repo_url>
+cd V37
+
+# 2. Setup environment
+cp backend/.env.example backend/.env
+cp .env.example .env
+
+# 3. Start Docker
+docker-compose up --build
+
+# 4. Setup database (new terminal)
+docker exec -it letwash-backend npx prisma migrate deploy
+docker exec -it letwash-backend npm run seed
+
+# 5. Open browser
+# http://localhost
+# Login: admin@letwash.com / Letwash123!
+```
+
+**📖 Detailed Guide:** [QUICK_START.md](QUICK_START.md)  
+**🐳 Docker Setup:** [DOCKER_SETUP_COMPLETE.md](DOCKER_SETUP_COMPLETE.md)
 
 ---
 
@@ -15,7 +44,17 @@
 - ✅ **Role-Based Access Control** (ROOT_OWNER, CARWASH_OWNER, MANAGER, STAFF)
 - ✅ **SSO Integration** (Google, Apple, Microsoft via AWS Cognito)
 - ✅ **JWT Token Authentication** with refresh token support
+- ✅ **Digital Agreement Signatures** (GDPR compliant)
+- ✅ **Demo Mode** - Test without SSO accounts
 - ✅ **Secure Password Hashing** (bcrypt)
+
+### 💳 **Payment & Commission System**
+- ✅ **Stripe Integration** - Secure payment processing
+- ✅ **Automatic Commission Calculation** (15%, 10%, 7.5% based on tier)
+- ✅ **Transaction Tracking** - Complete payment history
+- ✅ **Refund Management** - Easy refund processing
+- ✅ **Commission Dashboard** - Real-time revenue tracking
+- ✅ **Payout Batches** - Automated payout management
 
 ### 🏢 **Multi-Module Business Support**
 - ✅ **In-Bay Automatic** - Automated wash stations
@@ -28,382 +67,527 @@
 
 ### 🚙 **Vehicle Type Filtering**
 - Dynamic pricing based on vehicle type (Sedan, SUV, Truck, Electric, Luxury)
-- Configurable multipliers per service
-- Automatic duration calculation
+- Customizable service durations per vehicle type
+- Automatic price calculation
 
-### 💳 **Subscription System**
-- **Starter Plan** - Small businesses (1 location, 3 modules)
-- **Professional Plan** - Growing businesses (5 locations, all modules)
-- **Enterprise Plan** - Large operations (unlimited)
-- Monthly/Yearly billing cycles
-- 14-day free trial
+### 💰 **Subscription Management**
+- ✅ **Tiered Plans** (Starter, Professional, Enterprise)
+- ✅ **Feature Gating** by subscription tier
+- ✅ **Usage Limits** (branches, modules, stations)
+- ✅ **Subscription Analytics**
 
-### 📊 **Analytics & Insights**
-- Real-time dashboard
-- Revenue tracking
-- Customer analytics
-- Service performance metrics
-- Peak hours analysis
+### 📊 **Analytics & Reports**
+- ✅ **Real-time Dashboard** with KPIs
+- ✅ **Revenue Analytics** (daily, weekly, monthly)
+- ✅ **Station Utilization** tracking
+- ✅ **Customer Insights**
+- ✅ **Service Performance** metrics
+- ✅ **Commission Reports**
+
+### 📅 **Advanced Booking System**
+- ✅ **Real-time Availability** checking
+- ✅ **Multi-station Management**
+- ✅ **Queue Management** with wait time estimation
+- ✅ **Booking Confirmations** with reservation codes
+- ✅ **Payment Integration**
 
 ### 🔔 **Notifications**
-- Booking confirmations
-- Appointment reminders
-- Payment receipts
-- Campaign announcements
-- System alerts
+- ✅ **Real-time Alerts** for bookings, payments, and system events
+- ✅ **In-app Notifications** with badge counters
+- ✅ **Notification History**
 
 ---
 
-## 🏗️ Tech Stack
+## 🏗️ Architecture
 
-### **Frontend**
-- **React 18** with TypeScript
-- **Tailwind CSS** for styling
-- **Lucide React** for icons
-- **React Router** for navigation
-- **Vite** for fast builds
+### **Tech Stack**
 
-### **Backend**
-- **Node.js 18+** with Express.js
-- **PostgreSQL 15+** with Prisma ORM
-- **JWT** for authentication
-- **Passport.js** for OAuth strategies
-- **AWS SDK** for cloud services
+**Frontend:**
+- React 18 + TypeScript
+- Tailwind CSS v4
+- Shadcn/ui Components
+- React Router v6
+- Recharts (Analytics)
+- Stripe Elements (Payments)
 
-### **Infrastructure**
-- **AWS RDS** - PostgreSQL database
-- **AWS ECS/Fargate** - Backend hosting
-- **AWS S3 + CloudFront** - Frontend hosting
-- **AWS Cognito** - User authentication
-- **Docker** - Containerization
+**Backend:**
+- Node.js 18+ / Express
+- PostgreSQL 15
+- Prisma ORM
+- JWT Authentication
+- Stripe API
 
----
+**DevOps:**
+- Docker & Docker Compose
+- Nginx (reverse proxy)
+- AWS Cognito (SSO)
 
-## 🚀 Quick Start
-
-### Prerequisites
-```bash
-node --version  # v18+ required
-npm --version   # v9+ required
-docker --version  # Latest
-```
-
-### 1️⃣ Clone Repository
-```bash
-git clone https://github.com/Smyrgzr/V37.git
-cd V37
-```
-
-### 2️⃣ Install Dependencies
-```bash
-# Install frontend dependencies
-npm install
-
-# Install backend dependencies
-cd backend
-npm install
-cd ..
-```
-
-### 3️⃣ Configure Environment
-```bash
-# Frontend environment
-cp .env.example .env
-# Edit .env with your configuration
-
-# Backend environment
-cp backend/.env.example backend/.env
-# Edit backend/.env with your configuration
-```
-
-### 4️⃣ Start with Docker (Recommended)
-```bash
-# Start all services (frontend, backend, database)
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-```
-
-**Access the application:**
-- Frontend: http://localhost
-- Backend API: http://localhost:5000
-- Database: localhost:5432
+**Payment:**
+- Stripe Payment Intents
+- Webhook handling
+- Automatic commission calculation
 
 ---
 
 ## 📁 Project Structure
 
 ```
-letwash/
-├── src/                          # Frontend source
-│   ├── components/               # React components
-│   ├── pages/                    # Page components
-│   ├── hooks/                    # Custom hooks
-│   ├── contexts/                 # React contexts
-│   └── utils/                    # Utilities & API client
-├── backend/                      # Backend API
+V37/
+├── backend/                    # Node.js Backend API
 │   ├── src/
-│   │   ├── controllers/          # Route controllers
-│   │   ├── routes/               # API routes
-│   │   ├── middleware/           # Custom middleware
-│   │   ├── config/               # Configuration
-│   │   └── index.js              # Entry point
-│   └── prisma/
-│       ├── schema.prisma         # Database schema
-│       └── seed.js               # Seed data
-├── docker-compose.yml            # Local development
-├── Dockerfile                    # Frontend Docker
-└── README.md                     # This file
+│   │   ├── controllers/       # Business logic
+│   │   │   ├── stripe.controller.js      # Payment processing
+│   │   │   ├── commission.controller.js  # Commission management
+│   │   │   ├── transaction.controller.js # Transaction tracking
+│   │   │   └── ...
+│   │   ├── routes/            # API routes
+│   │   ├── middleware/        # Auth, validation, error handling
+│   │   └── index.js           # Server entry point
+│   ├── prisma/
+│   │   ├── schema.prisma      # Database schema
+│   │   └── seed.js            # Demo data
+│   └── .env                   # Environment variables
+├── components/                 # React Components
+│   ├── auth/                  # Login, Register, Demo Mode
+│   ├── payment/               # Stripe Checkout, Payment Success
+│   ├── dialogs/               # Payment Dialog, Agreement Dialog
+│   ├── dashboard/             # Analytics, KPIs
+│   └── ...
+├── docker-compose.yml          # Docker setup
+├── QUICK_START.md             # 5-minute quick start
+├── DOCKER_SETUP_COMPLETE.md   # Detailed Docker guide
+├── DEMO_MODE_GUIDE.md         # Demo users guide
+├── STRIPE_SETUP_GUIDE.md      # Payment setup
+└── README.md                  # This file
 ```
 
 ---
 
-## 🔌 API Documentation
+## 🚀 Installation
 
-### Base URL
-```
-Development: http://localhost:5000/api/v1
-Production:  https://api.letwash.com/api/v1
-```
+### **Prerequisites**
 
-### Authentication Endpoints
-```
-POST   /auth/register           # Create account
-POST   /auth/login              # Login
-POST   /auth/refresh            # Refresh token
-GET    /auth/me                 # Current user
-POST   /auth/logout             # Logout
+- Docker Desktop (recommended) **OR**
+- Node.js 18+, PostgreSQL 15+
+
+### **Option 1: Docker (Recommended)**
+
+**Quick Install:**
+```bash
+# See QUICK_START.md for 5-minute setup
 ```
 
-### SSO Endpoints
-```
-GET    /sso/google              # Google OAuth
-GET    /sso/apple               # Apple OAuth
-GET    /sso/microsoft           # Microsoft OAuth
+**Detailed Install:**
+```bash
+# See DOCKER_SETUP_COMPLETE.md for step-by-step guide
 ```
 
-### Business Endpoints
-```
-# Branches
-GET    /branches                # List branches
-POST   /branches                # Create branch
-PUT    /branches/:id            # Update branch
-DELETE /branches/:id            # Delete branch
+### **Option 2: Local Development**
 
-# Services
-GET    /services                # List services
-POST   /services                # Create service
-PUT    /services/:id            # Update service
-DELETE /services/:id            # Delete service
-
-# Bookings
-GET    /bookings                # List bookings
-POST   /bookings                # Create booking
-PUT    /bookings/:id            # Update booking
-DELETE /bookings/:id            # Cancel booking
-
-# Analytics
-GET    /analytics/dashboard     # Dashboard data
-GET    /analytics/bookings      # Booking stats
-GET    /analytics/revenue       # Revenue stats
+**Backend:**
+```bash
+cd backend
+npm install
+cp .env.example .env
+# Edit .env with your database credentials
+npx prisma migrate deploy
+npm run seed
+npm run dev
 ```
 
-📖 **Full API Documentation:** [See DEPLOYMENT.md](./DEPLOYMENT.md)
+**Frontend:**
+```bash
+npm install
+cp .env.example .env
+npm run dev
+```
 
 ---
 
-## 🗄️ Database Schema
+## 👥 Demo Users
 
-### Core Models
-- **Users** - Authentication & authorization
-- **Branches** - Business locations
-- **Services** - Service offerings with pricing
-- **Stations** - Physical wash stations
-- **Bookings** - Appointments & reservations
-- **Customers** - Customer profiles
-- **Campaigns** - Marketing campaigns
-- **Subscriptions** - Subscription management
-- **Analytics** - Performance metrics
+**No SSO Required! Use Demo Mode:**
 
-### Relationships
-```mermaid
-graph LR
-    User -->|owns| Branch
-    Branch -->|has| Station
-    Branch -->|offers| Service
-    Branch -->|receives| Booking
-    Booking -->|uses| Service
-    Booking -->|at| Station
-    Customer -->|books| Booking
 ```
+Admin (ROOT_OWNER):
+📧 admin@letwash.com
+🔑 Letwash123!
+
+Owner 1 (Professional Tier - 10% commission):
+📧 owner1@letwash.com
+🔑 Letwash123!
+
+Owner 2 (Starter Tier - 15% commission):
+📧 owner2@letwash.com
+🔑 Letwash123!
+```
+
+**Quick Login:** Click "Quick Login" button on login page!
+
+**📖 Demo Mode Guide:** [DEMO_MODE_GUIDE.md](DEMO_MODE_GUIDE.md)
+
+---
+
+## 💳 Stripe Payment Setup
+
+**Test Mode (Quick Setup):**
+
+1. Create Stripe account: https://dashboard.stripe.com/register
+2. Get test API keys: https://dashboard.stripe.com/test/apikeys
+3. Add to `.env` files:
+
+**Backend (.env):**
+```env
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+
+**Frontend (.env):**
+```env
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
+```
+
+4. Start Stripe webhook listener:
+```bash
+stripe login
+stripe listen --forward-to localhost:5000/api/v1/stripe/webhook
+```
+
+**Test Cards:**
+```
+Success: 4242 4242 4242 4242
+Decline: 4000 0000 0000 0002
+3D Secure: 4000 0027 6000 3184
+```
+
+**📖 Detailed Guide:** [STRIPE_SETUP_GUIDE.md](STRIPE_SETUP_GUIDE.md)
+
+---
+
+## 🔐 SSO Setup (Optional)
+
+**Google OAuth:**
+```bash
+# See SSO_SETUP_GUIDE.md for detailed instructions
+```
+
+**Apple Sign In:**
+```bash
+# See SSO_SETUP_GUIDE.md for detailed instructions
+```
+
+**Microsoft OAuth:**
+```bash
+# See SSO_SETUP_GUIDE.md for detailed instructions
+```
+
+---
+
+## 🎯 API Endpoints
+
+### **Authentication**
+```
+POST   /api/v1/auth/register          # Register new owner
+POST   /api/v1/auth/login             # Login
+POST   /api/v1/auth/refresh           # Refresh token
+GET    /api/v1/auth/me                # Get current user
+```
+
+### **Stripe Payment**
+```
+POST   /api/v1/stripe/create-payment-intent    # Create payment
+POST   /api/v1/stripe/webhook                  # Stripe webhook
+POST   /api/v1/stripe/refund                   # Process refund
+POST   /api/v1/stripe/create-customer          # Create customer
+GET    /api/v1/stripe/balance                  # Get balance (admin)
+```
+
+### **Commissions**
+```
+GET    /api/v1/commissions/stats/:ownerId      # Owner commission stats
+GET    /api/v1/commissions/dashboard/letwash   # Platform commission (admin)
+POST   /api/v1/commissions/payout-batch        # Create payout batch
+```
+
+### **Bookings**
+```
+POST   /api/v1/bookings               # Create booking
+GET    /api/v1/bookings               # List bookings
+GET    /api/v1/bookings/:id           # Get booking
+PATCH  /api/v1/bookings/:id           # Update booking
+```
+
+**📖 Full API Docs:** See Postman collection or Swagger UI
 
 ---
 
 ## 🧪 Testing
 
-### Run Tests
+### **Test Payment Flow**
+
 ```bash
-# Backend tests
-cd backend
-npm test
-
-# Frontend tests
-npm test
-
-# E2E tests
-npm run test:e2e
+# 1. Login as owner
+# 2. Create booking
+# 3. Click "Pay Now"
+# 4. Enter test card: 4242 4242 4242 4242
+# 5. Complete payment
+# 6. ✅ Commission automatically created
 ```
 
-### Manual Testing
+### **Test Commission Dashboard**
+
 ```bash
-# Start development environment
+# 1. Login as admin (admin@letwash.com)
+# 2. Navigate to Commission Dashboard
+# 3. ✅ See all transactions and commissions
+```
+
+### **Test Demo Mode**
+
+```bash
+# 1. Open http://localhost
+# 2. See "Demo Credentials" on right side
+# 3. Click "Quick Login as Admin"
+# 4. ✅ Logged in without typing!
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### **Port Already in Use**
+```bash
+# Windows
+netstat -ano | findstr :5000
+taskkill /PID [PID] /F
+
+# Mac/Linux
+lsof -ti:5000 | xargs kill -9
+```
+
+### **Database Connection Failed**
+```bash
+docker-compose logs backend
+docker-compose restart postgres
+```
+
+### **Payment Failed**
+```bash
+# Check webhook listener
+stripe listen --forward-to localhost:5000/api/v1/stripe/webhook
+
+# Check backend logs
+docker-compose logs backend
+
+# Check Stripe dashboard
+https://dashboard.stripe.com/test/logs
+```
+
+### **Login Not Working**
+```bash
+# Check if seed ran
+docker exec -it letwash-db psql -U letwash -d letwash
+SELECT email, role FROM users;
+
+# Re-run seed
+docker exec -it letwash-backend npm run seed
+```
+
+**📖 Full Troubleshooting:** [DOCKER_SETUP_COMPLETE.md](DOCKER_SETUP_COMPLETE.md#troubleshooting)
+
+---
+
+## 🔧 Docker Commands
+
+```bash
+# Start containers
+docker-compose up
+
+# Start in background
 docker-compose up -d
 
-# Create test user
-curl -X POST http://localhost:5000/api/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@letwash.com",
-    "password": "Test123!",
-    "fullName": "Test User",
-    "businessModules": ["IN_BAY"],
-    "subscriptionTier": "STARTER"
-  }'
+# Stop containers
+docker-compose down
+
+# View logs
+docker-compose logs -f
+
+# Rebuild containers
+docker-compose up --build
+
+# Access backend shell
+docker exec -it letwash-backend bash
+
+# Access database
+docker exec -it letwash-db psql -U letwash -d letwash
+
+# Restart containers
+docker-compose restart
 ```
 
 ---
 
-## 🌐 Deployment
+## 📚 Documentation
 
-### AWS Deployment (Production)
+| Document | Description |
+|----------|-------------|
+| [QUICK_START.md](QUICK_START.md) | 5-minute quick start guide |
+| [DOCKER_SETUP_COMPLETE.md](DOCKER_SETUP_COMPLETE.md) | Docker installation (Windows/Mac/Linux) |
+| [DEMO_MODE_GUIDE.md](DEMO_MODE_GUIDE.md) | Demo users and quick login |
+| [STRIPE_SETUP_GUIDE.md](STRIPE_SETUP_GUIDE.md) | Payment integration setup |
+| [STRIPE_INTEGRATION_COMPLETE.md](STRIPE_INTEGRATION_COMPLETE.md) | Stripe features overview |
+| [SSO_DEMO_COMPLETE.md](SSO_DEMO_COMPLETE.md) | SSO + Demo mode features |
 
-**Full deployment guide:** [AWS_DEPLOYMENT_COMPLETE_GUIDE.md](./AWS_DEPLOYMENT_COMPLETE_GUIDE.md)
+---
 
-#### Quick Deploy Summary:
+## 🌐 Environment Variables
+
+### **Backend (.env)**
+```env
+# Database
+DATABASE_URL=postgresql://letwash:letwash123@localhost:5432/letwash
+
+# JWT
+JWT_SECRET=your-secret-key
+JWT_EXPIRES_IN=7d
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# CORS
+CORS_ORIGIN=http://localhost:5173,http://localhost:80
+```
+
+### **Frontend (.env)**
+```env
+# API
+VITE_API_BASE_URL=http://localhost:5000/api/v1
+
+# Stripe
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
+```
+
+---
+
+## 🚀 Deployment
+
+### **Docker Production**
 ```bash
-# 1. Infrastructure Setup (30 mins)
-- Create RDS PostgreSQL
-- Create ECR repositories
-- Create S3 bucket + CloudFront
-- Setup Route 53 DNS
+# Build for production
+docker-compose -f docker-compose.prod.yml up --build
 
-# 2. Backend Deploy (1 hour)
-- Build & push Docker image
-- Deploy to ECS Fargate
-- Configure Load Balancer
-
-# 3. Frontend Deploy (30 mins)
-- Build frontend
-- Upload to S3
-- Invalidate CloudFront cache
-
-# 4. Database Setup (15 mins)
-- Run migrations
-- Seed initial data
-
-# 5. SSL & DNS (30 mins)
-- Configure SSL certificates
-- Setup domain routing
+# Use environment variables for secrets
+# Never commit .env files!
 ```
 
-#### Estimated Monthly Costs:
-- **Staging:** ~$70/month
-- **Production:** ~$235/month (1000+ users)
+### **AWS Deployment**
+```bash
+# See deployment guide (coming soon)
+```
 
 ---
 
-## 🔐 Security
+## 💰 Commission Rates
 
-### Best Practices Implemented
-- ✅ JWT tokens with expiration
-- ✅ Password hashing (bcrypt)
-- ✅ CORS configuration
-- ✅ Rate limiting
-- ✅ Helmet.js security headers
-- ✅ Input validation
-- ✅ SQL injection prevention (Prisma)
-- ✅ XSS protection
+| Tier | Monthly Fee | Commission | Branches | Modules |
+|------|-------------|-----------|----------|---------|
+| **Starter** | $99/month | 15% | 1 | 2 |
+| **Professional** | $299/month | 10% | 5 | 4 |
+| **Enterprise** | $699/month | 7.5% | Unlimited | 7 |
 
-### Environment Variables Security
-- Never commit `.env` files
-- Use AWS Secrets Manager in production
-- Rotate credentials regularly
-- Use least-privilege IAM roles
-
----
-
-## 📊 Monitoring
-
-### AWS CloudWatch
-- Application logs
-- Error tracking
-- Performance metrics
-- Custom dashboards
-
-### Recommended Tools
-- **Error Tracking:** Sentry
-- **APM:** New Relic / DataDog
-- **Uptime:** Pingdom / UptimeRobot
-- **Analytics:** Google Analytics
+**Example:**
+```
+Customer pays: $100
+Professional tier: 10% commission
+─────────────────────
+Gross Amount:    $100
+Commission:      $10 (to Letwash)
+Net to Owner:    $90
+```
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please follow these steps:
+```bash
+# 1. Fork the repository
+# 2. Create feature branch
+git checkout -b feature/amazing-feature
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+# 3. Commit changes
+git commit -m 'Add amazing feature'
+
+# 4. Push to branch
+git push origin feature/amazing-feature
+
+# 5. Open Pull Request
+```
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file for details
 
 ---
 
-## 👥 Team
+## 📞 Support
 
-**Letwash Team** - Building the future of car wash management
-
-- Website: https://letwash.com
-- Email: support@letwash.com
-- GitHub: https://github.com/letwash-tech
+- 📧 Email: support@letwash.com
+- 🐙 GitHub Issues: [Create Issue](https://github.com/Smyrgzr/V37/issues)
+- 📖 Documentation: See `/docs` folder
 
 ---
 
-## 🙏 Acknowledgments
+## 🎉 Credits
 
-- Built with [React](https://react.dev/)
-- Powered by [Node.js](https://nodejs.org/)
-- Database by [PostgreSQL](https://www.postgresql.org/)
-- Hosted on [AWS](https://aws.amazon.com/)
+Built with ❤️ by the Letwash Team
 
----
-
-## 📮 Support
-
-- **Documentation:** [/docs](./docs)
-- **Issues:** [GitHub Issues](https://github.com/letwash-tech/letwash/issues)
-- **Email:** support@letwash.com
-- **Discord:** [Join our community](https://discord.gg/letwash)
+**Technologies:**
+- React + TypeScript
+- Node.js + Express
+- PostgreSQL + Prisma
+- Docker
+- Stripe
+- Tailwind CSS
+- Shadcn/ui
 
 ---
 
-<div align="center">
+## ✅ Project Status
 
-**⭐ Star us on GitHub — it motivates us a lot!**
+- [x] Multi-branch management
+- [x] 7 business modules
+- [x] Vehicle type filtering
+- [x] Dynamic pricing
+- [x] Booking system
+- [x] Real-time queue management
+- [x] Analytics dashboard
+- [x] Subscription management
+- [x] SSO integration
+- [x] Agreement signatures
+- [x] **Stripe payment integration**
+- [x] **Commission system**
+- [x] **Transaction tracking**
+- [x] **Demo mode (no SSO required)**
+- [ ] Mobile app (coming soon)
+- [ ] Email notifications
+- [ ] SMS notifications
+- [ ] Customer loyalty program
 
-Made with ❤️ by the Letwash Team
+---
 
-[Website](https://letwash.com) • [Documentation](./docs) • [API](./DEPLOYMENT.md) • [Deploy](./AWS_DEPLOYMENT_COMPLETE_GUIDE.md)
+## 🎯 Next Steps
 
-</div>
+1. ⚡ **Quick Start:** Follow [QUICK_START.md](QUICK_START.md)
+2. 🎭 **Test Demo Mode:** Login with quick login
+3. 💳 **Setup Stripe:** Follow [STRIPE_SETUP_GUIDE.md](STRIPE_SETUP_GUIDE.md)
+4. 🔐 **Configure SSO:** (Optional) Setup Google/Apple login
+5. 🚀 **Deploy:** Go to production!
+
+---
+
+**Start now:** `docker-compose up --build` 🚀
+
+**Happy washing! 🚗💦✨**
